@@ -1,0 +1,40 @@
+{
+	"configurations": {
+		"default debug": {
+			"adapter": "debugpy",
+			"configuration": {
+				"python": "~/.local/bin/pythonvim",
+				"args": [
+					"--model",
+					"",
+					"--batch_size",
+					"64",
+					"--blr",
+					"0.001",
+					"--epochs",
+					"1"
+				],
+				"env": {
+					"RANK": "0",
+					"WORLD_SIZE": "1",
+					"LOCAL_RANK": "0",
+					"MASTER_ADDR": "127.0.0.1",
+					"MASTER_PORT": "29678"
+				},
+				"program": "./main.py",
+
+				"request": "launch",
+				"type": "python",
+				"cwd": "${workspaceRoot}",
+				"stopOnEntry": true,
+				"console": "integratedTerminal"
+			},
+			"breakpoints": {
+				"exception": {
+					"raised": "N",
+					"uncaught": ""
+				}
+			}
+		}
+	}
+}
