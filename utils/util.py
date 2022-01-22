@@ -225,26 +225,35 @@ def init_distributed_mode(args, backend='nccl', port=29500):
         os.environ['WORLD_SIZE'] = str(ntasks)
         os.environ['RANK'] = str(proc_id)
         # dist.init_process_group(backend=backend)
-        args.gpu = args.rank % num_gpus
         args.rank = proc_id
-        assert args.world_size == ntasks
+        args.gpu = args.rank % num_gpus
+        args.world_size = ntasks
+        args.distributed = True
+
+        torch.cuda.set_device(args.gpu)
+        args.dist_backend = 'nccl'
+        print('| distributed init (rank {}): {}, gpu {}'.format(
+            args.rank, args.dist_url, args.gpu), flush=True)
+        torch.distributed.init_process_group(backend=args.dist_backend)
+        torch.distributed.barrier()
+        setup_for_distributed(args.rank == 0)
 
     elif args.launcher == 'pytorch':
         args.rank = int(os.environ["RANK"])
         args.world_size = int(os.environ['WORLD_SIZE'])
         args.gpu = int(os.environ['LOCAL_RANK'])
+        args.distributed = True
+
+        torch.cuda.set_device(args.gpu)
+        args.dist_backend = 'nccl'
+        print('| distributed init (rank {}): {}, gpu {}'.format(
+            args.rank, args.dist_url, args.gpu), flush=True)
+        torch.distributed.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
+                                             world_size=args.world_size, rank=args.rank)
+        torch.distributed.barrier()
+        setup_for_distributed(args.rank == 0)
     else:
         raise ValueError('Unknown launcher type: {}'.format(args.launcher))
-
-    args.distributed = True
-    torch.cuda.set_device(args.gpu)
-    args.dist_backend = 'nccl'
-    print('| distributed init (rank {}): {}, gpu {}'.format(
-        args.rank, args.dist_url, args.gpu), flush=True)
-    torch.distributed.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
-                                         world_size=args.world_size, rank=args.rank)
-    torch.distributed.barrier()
-    setup_for_distributed(args.rank == 0)
 
 
 class NativeScalerWithGradNormCount:

@@ -123,9 +123,10 @@ def main(args):
     )
 
     # setup logger
-    if global_rank == 0 and args.log_dir is not None:
-        os.makedirs(args.log_dir, exist_ok=True)
-        log_writer = SummaryWriter(log_dir=args.log_dir)
+    if global_rank == 0 and args.istblog is not None:
+        log_dir = os.path.join(args.output_dir, 'tblogs')
+        os.makedirs(log_dir, exist_ok=True)
+        log_writer = SummaryWriter(log_dir=log_dir)
     else:
         log_writer = None
 

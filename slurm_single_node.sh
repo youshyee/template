@@ -6,24 +6,21 @@
 
 #SBATCH --mem=80G
 #SBATCH --mail-type=ALL
-#SBATCH --partition gpu
+#SBATCH --partition mlcnu
 #SBATCH --gres=gpu:4
-#SBATCH --ntasks-per-node=2
-#SBATCH --cpus-per-task=8
+#SBATCH --ntasks-per-node=4
 
 cd $SLURM_SUBMIT_DIR
 
-PARTITION=gpu #mlcnu
 GPU=4
 
 TRAINFILE="$SLURM_SUBMIT_DIR"/dist_train.sh
 EXPNAME=expname
 
-PYTHON=/mnt/storage/scratch/rn18510/anaconda3/envs/pytorch/bin/python
+PYTHON=$HOME/.conda/envs/torch/bin/python
 while true;
 do
-PYTHON=$PYTHON sh TRAINFILE $GPU $EXPNAME  # add args here
-&& break \
+PYTHON=$PYTHON sh $TRAINFILE $GPU $EXPNAME && break \
 	|| echo 0 > "$SLURM_SUBMIT_DIR"/control_$SLURM_JOBID; ~/.local/bin/composemail $SLURM_JOBID "$SLURM_SUBMIT_DIR"/slurm-"$SLURM_JOBID".out; sendmail rn18510@bristol.ac.uk < ~/.tmp/mail_"$SLURM_JOBID".txt; while [ $(cat "$SLURM_SUBMIT_DIR"/control_$SLURM_JOBID) == 0 ];
 do
 	sleep 1
