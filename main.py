@@ -17,8 +17,6 @@ from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
-import timm
-
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Model', add_help=False)
